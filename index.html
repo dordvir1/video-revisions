@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dor Dvir — הגשת בקשת תיקון</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F2F2F2;
+      min-height: 100vh;
+      padding: 40px 16px 60px;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* ─── Logo ─── */
+    .logo-card {
+      background: linear-gradient(135deg, #293740 0%, #455159 100%);
+      border-radius: 16px;
+      padding: 32px 36px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo-name {
+      font-size: 32px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .logo-tagline {
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      margin-top: 6px;
+      font-weight: 400;
+      letter-spacing: 0.2px;
+    }
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+    }
+
+    /* ─── Card ─── */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 36px;
+      box-shadow: 0 4px 24px rgba(41,55,64,0.08);
+    }
+
+    .form-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #293740;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #EBEBEB;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #5D6D73;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      margin-top: 28px;
+    }
+    .section-label:first-of-type { margin-top: 0; }
+
+    .form-group { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #293740;
+      margin-bottom: 6px;
+    }
+    label .req { color: #c0392b; }
+
+    input, textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #DDDFE0;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      direction: rtl;
+      color: #293740;
+      background: #fff;
+      transition: border-color 0.15s;
+    }
+    input::placeholder, textarea::placeholder { color: #B8BCBF; }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #293740;
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media(max-width: 480px) { .row { grid-template-columns: 1fr; } }
+
+    .hint { font-size: 12px; color: #B8BCBF; margin-top: 5px; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #EBEBEB;
+      margin: 24px 0;
+    }
+
+    /* ─── Revision items ─── */
+    #revisionList { margin-bottom: 12px; }
+
+    .revision-item {
+      border: 1.5px solid #DDDFE0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 10px;
+      position: relative;
+      background: #FAFAFA;
+      animation: fadeIn 0.18s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+
+    .revision-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: #5D6D73;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+
+    .btn-remove {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 24px;
+      height: 24px;
+      background: none;
+      color: #B8BCBF;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+    .btn-remove:hover { color: #c0392b; }
+
+    .btn-add {
+      width: 100%;
+      padding: 11px;
+      background: #fff;
+      color: #455159;
+      border: 1.5px dashed #B8BCBF;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-add:hover { border-color: #293740; color: #293740; background: #F8F9F9; }
+
+    .error-msg {
+      color: #c0392b;
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+      font-weight: 500;
+    }
+
+    /* ─── Submit ─── */
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: #293740;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 8px;
+      letter-spacing: 0.2px;
+    }
+    .btn-submit:hover { background: #1e2c33; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(41,55,64,0.25); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ─── Success ─── */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 24px 16px;
+    }
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #293740, #455159);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+    .success-screen h2 { font-size: 22px; font-weight: 700; color: #293740; margin-bottom: 10px; }
+    .success-screen p { color: #5D6D73; font-size: 14px; margin-bottom: 24px; }
+    .btn-new {
+      padding: 12px 28px;
+      background: #293740;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+    }
+    .btn-new:hover { background: #1e2c33; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Logo -->
+    <div class="logo-card">
+      <div>
+        <div class="logo-name">Dor Dvir</div>
+        <div class="logo-tagline">less energy more leads</div>
+      </div>
+      <div class="logo-dot"></div>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+
+      <!-- Success -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">✓</div>
+        <h2>הבקשה נשלחה בהצלחה</h2>
+        <p>קיבלנו את בקשת התיקון שלך ונחזור אליך בהקדם.</p>
+        <button class="btn-new" onclick="resetForm()">הגשת בקשה נוספת</button>
+      </div>
+
+      <!-- Form -->
+      <form id="revisionForm">
+        <div class="form-title">בקשת תיקון סרטון</div>
+
+        <!-- פרטי לקוח -->
+        <div class="section-label">פרטי לקוח</div>
+        <div class="row">
+          <div class="form-group">
+            <label>שם מלא <span class="req">*</span></label>
+            <input type="text" id="clientName" placeholder="ישראל ישראלי" required>
+          </div>
+          <div class="form-group">
+            <label>אימייל</label>
+            <input type="email" id="clientEmail" placeholder="mail@example.com">
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- פרטי הסרטון -->
+        <div class="section-label">פרטי הסרטון</div>
+        <div class="form-group">
+          <label>שם הסרטון / פרויקט</label>
+          <input type="text" id="videoName" placeholder="לדוגמה: רילס לאינסטגרם — אפריל">
+        </div>
+
+        <hr class="divider">
+
+        <!-- תיקונים -->
+        <div class="section-label">רשימת תיקונים <span class="req">*</span></div>
+        <div id="revisionList"></div>
+        <button type="button" class="btn-add" onclick="addRevision()">+ הוסף תיקון</button>
+        <div class="error-msg" id="revError">יש להוסיף לפחות תיקון אחד</div>
+
+        <hr class="divider">
+
+        <!-- הערות -->
+        <div class="form-group">
+          <label>הערות נוספות</label>
+          <textarea id="notes" placeholder="כל מה שחשוב לדעת..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">שלח בקשה</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let revisionCount = 0;
+
+    function addRevision() {
+      revisionCount++;
+      const idx = revisionCount;
+      const div = document.createElement('div');
+      div.className = 'revision-item';
+      div.id = `rev-${idx}`;
+      div.innerHTML = `
+        <div class="revision-num">תיקון ${idx}</div>
+        <button type="button" class="btn-remove" onclick="removeRevision(${idx})" title="הסר">×</button>
+        <div class="row">
+          <div class="form-group">
+            <label>טיים-קוד</label>
+            <input type="text" id="tc-${idx}" placeholder="00:01:23" style="direction:ltr;">
+          </div>
+          <div class="form-group">
+            <label>תיאור התיקון <span class="req">*</span></label>
+            <input type="text" id="desc-${idx}" placeholder="לדוגמה: חתוך שניות 5–8">
+          </div>
+        </div>
+      `;
+      document.getElementById('revisionList').appendChild(div);
+      document.getElementById(`desc-${idx}`).focus();
+      document.getElementById('revError').style.display = 'none';
+    }
+
+    function removeRevision(idx) {
+      const el = document.getElementById(`rev-${idx}`);
+      if (el) el.remove();
+    }
+
+    function getRevisions() {
+      const items = document.querySelectorAll('.revision-item');
+      const result = [];
+      items.forEach(item => {
+        const id = item.id.replace('rev-', '');
+        const desc = document.getElementById(`desc-${id}`)?.value?.trim();
+        const tc   = document.getElementById(`tc-${id}`)?.value?.trim();
+        if (desc) result.push({ description: desc, timecode: tc || '' });
+      });
+      return result;
+    }
+
+    document.getElementById('revisionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const revisions = getRevisions();
+      if (!revisions.length) {
+        document.getElementById('revError').style.display = 'block';
+        return;
+      }
+
+      const payload = {
+        clientName:  document.getElementById('clientName').value.trim(),
+        clientEmail: document.getElementById('clientEmail').value.trim(),
+        videoName:   document.getElementById('videoName').value.trim(),
+        revisions,
+        notes: document.getElementById('notes').value.trim()
+      };
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'שולח...';
+
+      try {
+        const res  = await fetch('/api/revisions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          document.getElementById('revisionForm').style.display = 'none';
+          document.getElementById('successScreen').style.display = 'block';
+        } else {
+          alert('שגיאה: ' + (data.error || 'אנא נסה שוב'));
+          btn.disabled = false;
+          btn.textContent = 'שלח בקשה';
+        }
+      } catch (err) {
+        alert('שגיאת חיבור — ודא שהשרת פועל');
+        btn.disabled = false;
+        btn.textContent = 'שלח בקשה';
+      }
+    });
+
+    function resetForm() {
+      document.getElementById('revisionForm').reset();
+      document.getElementById('revisionList').innerHTML = '';
+      revisionCount = 0;
+      document.getElementById('revisionForm').style.display = 'block';
+      document.getElementById('successScreen').style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = 'שלח בקשה';
+      addRevision();
+    }
+
+    addRevision();
+  </script>
+</body>
+</html>
