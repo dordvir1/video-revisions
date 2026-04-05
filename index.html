@@ -277,10 +277,6 @@
             <label>שם מלא <span class="req">*</span></label>
             <input type="text" id="clientName" placeholder="ישראל ישראלי" required>
           </div>
-          <div class="form-group">
-            <label>אימייל</label>
-            <input type="email" id="clientEmail" placeholder="mail@example.com">
-          </div>
         </div>
 
         <hr class="divider">
@@ -317,7 +313,7 @@
   <form name="revision-request" netlify netlify-honeypot="bot-field" hidden>
     <input name="bot-field">
     <input name="client-name">
-    <input name="client-email">
+
     <input name="video-name">
     <input name="revisions">
     <input name="notes">
@@ -391,7 +387,7 @@
           body: encode({
             'form-name': 'revision-request',
             'client-name':  document.getElementById('clientName').value.trim(),
-            'client-email': document.getElementById('clientEmail').value.trim(),
+
             'video-name':   document.getElementById('videoName').value.trim(),
             'revisions':    JSON.stringify(revisions),
             'notes':        document.getElementById('notes').value.trim()
