@@ -313,8 +313,21 @@
     </div>
   </div>
 
+  <!-- Netlify Forms hidden detector -->
+  <form name="revision-request" netlify netlify-honeypot="bot-field" hidden>
+    <input name="bot-field">
+    <input name="client-name">
+    <input name="client-email">
+    <input name="video-name">
+    <input name="revisions">
+    <input name="notes">
+  </form>
+
   <script>
     let revisionCount = 0;
+
+    const encode = (data) =>
+      Object.keys(data).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k])).join('&');
 
     function addRevision() {
       revisionCount++;
@@ -367,36 +380,32 @@
         return;
       }
 
-      const payload = {
-        clientName:  document.getElementById('clientName').value.trim(),
-        clientEmail: document.getElementById('clientEmail').value.trim(),
-        videoName:   document.getElementById('videoName').value.trim(),
-        revisions,
-        notes: document.getElementById('notes').value.trim()
-      };
-
       const btn = document.getElementById('submitBtn');
       btn.disabled = true;
       btn.textContent = 'שולח...';
 
       try {
-        const res  = await fetch('/api/revisions', {
+        const res = await fetch('/', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: encode({
+            'form-name': 'revision-request',
+            'client-name':  document.getElementById('clientName').value.trim(),
+            'client-email': document.getElementById('clientEmail').value.trim(),
+            'video-name':   document.getElementById('videoName').value.trim(),
+            'revisions':    JSON.stringify(revisions),
+            'notes':        document.getElementById('notes').value.trim()
+          })
         });
-        const data = await res.json();
 
-        if (data.success) {
+        if (res.ok) {
           document.getElementById('revisionForm').style.display = 'none';
           document.getElementById('successScreen').style.display = 'block';
         } else {
-          alert('שגיאה: ' + (data.error || 'אנא נסה שוב'));
-          btn.disabled = false;
-          btn.textContent = 'שלח בקשה';
+          throw new Error('שגיאה בשליחה');
         }
       } catch (err) {
-        alert('שגיאת חיבור — ודא שהשרת פועל');
+        alert('שגיאה בשליחה — אנא נסה שוב');
         btn.disabled = false;
         btn.textContent = 'שלח בקשה';
       }

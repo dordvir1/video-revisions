@@ -1,2 +1,3 @@
 node_modules/
 revisions.json
+.env
