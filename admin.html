@@ -353,19 +353,68 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  const SITE_ID = 'fixes-dordvir.netlify.app';
+  const FORM_NAME = 'revision-request';
   let allRevisions = [];
   let activeFilter = 'all';
 
   async function loadRevisions() {
+    let token = localStorage.getItem('netlify_token');
+    if (!token) {
+      document.getElementById('revList').innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🔑</div>
+          <p style="margin-bottom:16px">נדרש Personal Access Token של Netlify</p>
+          <input id="tokenInput" type="password" placeholder="הכנס טוקן..." style="padding:10px 14px;border:1.5px solid #DDDFE0;border-radius:8px;font-size:14px;width:300px;font-family:Inter,sans-serif;direction:ltr">
+          <br><br>
+          <button onclick="saveToken()" style="padding:10px 24px;background:#293740;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">התחבר</button>
+          <br><br>
+          <a href="https://app.netlify.com/user/applications/personal" target="_blank" style="font-size:12px;color:#5D6D73">צור טוקן כאן ←</a>
+        </div>`;
+      return;
+    }
     try {
-      const res = await fetch('/api/revisions');
-      allRevisions = await res.json();
+      const formsRes = await fetch(`https://api.netlify.com/api/v1/sites/${SITE_ID}/forms`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!formsRes.ok) { localStorage.removeItem('netlify_token'); loadRevisions(); return; }
+      const forms = await formsRes.json();
+      const form = forms.find(f => f.name === FORM_NAME);
+      if (!form) { allRevisions = []; renderStats(); renderList(); return; }
+
+      const subRes = await fetch(`https://api.netlify.com/api/v1/forms/${form.id}/submissions?per_page=100`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const submissions = await subRes.json();
+
+      allRevisions = submissions.map(s => {
+        const savedStatus = localStorage.getItem(`status-${s.id}`) || 'ממתין';
+        let revisions = [];
+        try { revisions = JSON.parse(s.data.revisions || '[]'); } catch { revisions = []; }
+        return {
+          id: s.id,
+          clientName: s.data['client-name'] || 'לא ידוע',
+          clientEmail: s.data['client-email'] || '',
+          videoName: s.data['video-name'] || '',
+          revisions: Array.isArray(revisions) ? revisions : [],
+          notes: s.data.notes || '',
+          status: savedStatus,
+          createdAt: s.created_at
+        };
+      });
       renderStats();
       renderList();
     } catch {
       document.getElementById('revList').innerHTML =
-        '<div class="empty-state"><div class="icon">⚠️</div><p>שגיאה בטעינה — ודא שהשרת פועל</p></div>';
+        '<div class="empty-state"><div class="icon">⚠️</div><p>שגיאה בטעינה — נסה לרענן</p></div>';
     }
+  }
+
+  function saveToken() {
+    const t = document.getElementById('tokenInput').value.trim();
+    if (!t) return;
+    localStorage.setItem('netlify_token', t);
+    loadRevisions();
   }
 
   function renderStats() {
@@ -454,21 +503,24 @@
 
   async function updateStatus(id) {
     const status = document.getElementById(`sel-${id}`).value;
-    await fetch(`/api/revisions/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
+    localStorage.setItem(`status-${id}`, status);
     const r = allRevisions.find(x => x.id === id);
     if (r) r.status = status;
     renderStats();
     renderList();
-    showToast('סטטוס עודכן');
+    showToast('סטטוס עודכן ✓');
   }
 
   async function deleteRevision(id) {
     if (!confirm('האם למחוק בקשה זו?')) return;
-    await fetch(`/api/revisions/${id}`, { method: 'DELETE' });
+    const token = localStorage.getItem('netlify_token');
+    try {
+      await fetch(`https://api.netlify.com/api/v1/submissions/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch {}
+    localStorage.removeItem(`status-${id}`);
     allRevisions = allRevisions.filter(r => r.id !== id);
     renderStats();
     renderList();
